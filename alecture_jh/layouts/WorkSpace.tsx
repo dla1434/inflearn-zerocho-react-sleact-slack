@@ -1,18 +1,19 @@
 import fetcher from '@utils/fetcher';
 import React, { FC, useCallback } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 
 const WorkSpace: FC = ({ children }) => {
-  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, revalidate, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
   const onLogOut = useCallback(() => {
     axios
       .post('http://localhost:3095/api/users/logout', null, {
         withCredentials: true,
       })
       .then(() => {
-        revalidate();
+        // revalidate();
+        mutate(false, false); //OPTIMISTIC UI
       });
   }, []);
 
