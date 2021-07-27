@@ -2,7 +2,7 @@ import useInput from '@hooks/useInput';
 import { Success, Form, Error, Label, Input, LinkContainer, Button, Header } from '@pages/SignUp/styles';
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
 
@@ -10,9 +10,7 @@ const LogIn = () => {
   //첫번째 인자 : 요청 URL
   // 두번째 인자 : 실제 URL에 요청 후 처리를 위한 건 fetcher에서 한다.
   //   참고) swr 에서는 error에 대한 처리와 loading 중인지도 알 수 있다
-  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher, {
-    dedupingInterval: 100000,
-  });
+  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher);
 
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -23,7 +21,7 @@ const LogIn = () => {
       setLogInError(false);
       axios
         .post(
-          '/api/users/login',
+          'http://localhost:3095/api/users/login',
           { email, password },
           {
             withCredentials: true,
@@ -38,6 +36,17 @@ const LogIn = () => {
     },
     [email, password],
   );
+
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
+
+  if (data) {
+    console.log('login success and then move redirect page', data);
+    return <Redirect to="/workspace/channel" />;
+  } else {
+    console.log('no data', data);
+  }
 
   // console.log(error, userData);
   // if (!error && userData) {

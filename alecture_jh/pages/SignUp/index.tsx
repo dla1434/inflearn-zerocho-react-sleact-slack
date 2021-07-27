@@ -3,8 +3,12 @@ import React, { useCallback, useState } from 'react';
 import { Form, Success, Error, Label, Input, LinkContainer, Button, Header } from './styles';
 import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
 
 const SignUp = () => {
+  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher);
+
   // const [email, setEmail] = useState('');
   // const [nickname, setNickname] = useState('');
   const [email, onChangeEmail, setEmail] = useInput('');
@@ -50,10 +54,11 @@ const SignUp = () => {
         setSignUpError('');
         setSignUpSuccess(false);
         axios
-          // .post('http://localhost:3095/api/users', {
           //도메인 부분을 지워야 3090이 아닌
           //3095에서 3095로 보내는 것처럼 인식이 되서..cors가 발생되지 않는다.
-          .post('/api/users', {
+          // .post('/api/users', {
+          //서버에서 cors를 지정해서 다시 이렇게 설정해도 된다. 서버에서 cors 설정 시에는 http://localhost:3095를 붙여야 한다.
+          .post('http://localhost:3095/api/users', {
             email,
             nickname,
             password,
@@ -71,6 +76,14 @@ const SignUp = () => {
     },
     [email, nickname, password, passwordCheck, mismatchError],
   );
+
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
+
+  if (data) {
+    return <Redirect to="/workspace/channel" />;
+  }
 
   return (
     <div id="container">
