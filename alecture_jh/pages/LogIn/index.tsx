@@ -3,8 +3,17 @@ import { Success, Form, Error, Label, Input, LinkContainer, Button, Header } fro
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
 
 const LogIn = () => {
+  //첫번째 인자 : 요청 URL
+  // 두번째 인자 : 실제 URL에 요청 후 처리를 위한 건 fetcher에서 한다.
+  //   참고) swr 에서는 error에 대한 처리와 loading 중인지도 알 수 있다
+  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher, {
+    dedupingInterval: 100000,
+  });
+
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -20,7 +29,9 @@ const LogIn = () => {
             withCredentials: true,
           },
         )
-        .then((response) => {})
+        .then((response) => {
+          revalidate();
+        })
         .catch((error) => {
           setLogInError(error.response?.data?.statusCode === 401);
         });
