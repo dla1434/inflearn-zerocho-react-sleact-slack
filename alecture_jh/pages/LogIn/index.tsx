@@ -44,7 +44,7 @@ const LogIn = () => {
 
   if (data) {
     console.log('login success and then move redirect page', data);
-    return <Redirect to="/workspace/channel" />;
+    return <Redirect to="/workspace/sleact/channel/일반" />;
   } else {
     console.log('no data', data);
   }
