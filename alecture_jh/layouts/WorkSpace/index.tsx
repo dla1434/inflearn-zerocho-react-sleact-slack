@@ -33,6 +33,7 @@ const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 const WorkSpace: VFC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [showWorkSpaceModal, setShowWorkSpaceModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
@@ -105,6 +106,10 @@ const WorkSpace: VFC = () => {
     setShowCreateWorkspaceModal(false);
   }, []);
 
+  const toggleWorkspaceModal = useCallback(() => {
+    setShowWorkSpaceModal((prev) => !prev);
+  }, []);
+
   if (!userData) {
     return <Redirect to="/login" />;
   }
@@ -143,8 +148,13 @@ const WorkSpace: VFC = () => {
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName>Sleact</WorkspaceName>
-          <MenuScroll>menu scroll</MenuScroll>
+          <WorkspaceName onClick={toggleWorkspaceModal}>
+            Sleact
+            {/*{userData?.Workspaces.find((v) => v.url === work)*/}
+          </WorkspaceName>
+          <MenuScroll>
+            <Menu show={showWorkSpaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}></Menu>
+          </MenuScroll>
         </Channels>
         <Chats>
           <Switch>
