@@ -17,6 +17,7 @@ import {
   LogOutButton,
   WorkspaceButton,
   AddButton,
+  WorkspaceModal,
 } from '@layouts/WorkSpace/styles';
 import gravatar from 'gravatar';
 import loadable from '@loadable/component';
@@ -26,6 +27,7 @@ import { IUser } from '@typings/db';
 import { Button, Input, Label } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
 import { toast } from 'react-toastify';
+import CreateChannelModal from '@components/CreateChannelModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -34,6 +36,7 @@ const WorkSpace: VFC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showWorkSpaceModal, setShowWorkSpaceModal] = useState(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
@@ -104,10 +107,15 @@ const WorkSpace: VFC = () => {
 
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
   }, []);
 
   const toggleWorkspaceModal = useCallback(() => {
     setShowWorkSpaceModal((prev) => !prev);
+  }, []);
+
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(true);
   }, []);
 
   if (!userData) {
@@ -153,7 +161,14 @@ const WorkSpace: VFC = () => {
             {/*{userData?.Workspaces.find((v) => v.url === work)*/}
           </WorkspaceName>
           <MenuScroll>
-            <Menu show={showWorkSpaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}></Menu>
+            <Menu show={showWorkSpaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
+              <WorkspaceModal>
+                <h2>Sleact</h2>
+                {/*<button onClick={onClickInviteWorkspace}>워크스페이스 사용자 초대</button>*/}
+                <button onClick={onClickAddChannel}>채널 만들기</button>
+                <button onClick={onLogOut}>로그 아웃</button>
+              </WorkspaceModal>
+            </Menu>
           </MenuScroll>
         </Channels>
         <Chats>
@@ -176,6 +191,7 @@ const WorkSpace: VFC = () => {
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
+      <CreateChannelModal show={showCreateChannelModal} onCloseModal={onCloseModal} />
     </div>
   );
 };
