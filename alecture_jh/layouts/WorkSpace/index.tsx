@@ -35,12 +35,14 @@ const WorkSpace: VFC = () => {
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
+
   const {
     data: userData,
     error,
     revalidate,
     mutate,
   } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
+
   const onLogOut = useCallback(() => {
     axios
       .post('http://localhost:3095/api/users/logout', null, {
@@ -51,10 +53,6 @@ const WorkSpace: VFC = () => {
         mutate(false, false); //OPTIMISTIC UI
       });
   }, []);
-
-  if (!userData) {
-    return <Redirect to="/login" />;
-  }
 
   const onCloseUserProfile = useCallback((e) => {
     console.log('close');
@@ -107,6 +105,10 @@ const WorkSpace: VFC = () => {
     setShowCreateWorkspaceModal(false);
   }, []);
 
+  if (!userData) {
+    return <Redirect to="/login" />;
+  }
+
   return (
     <div>
       <Header>
@@ -131,7 +133,7 @@ const WorkSpace: VFC = () => {
       <button onClick={onLogOut}>로그아웃</button>
       <WorkspaceWrapper>
         <Workspaces>
-          {userData?.Workspaces.map((ws) => {
+          {userData?.Workspaces?.map((ws) => {
             return (
               <Link key={ws.id} to={'/workspace/${123}/channel/일반'}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
