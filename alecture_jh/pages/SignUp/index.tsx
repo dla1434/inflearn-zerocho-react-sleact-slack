@@ -7,7 +7,7 @@ import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
 
 const SignUp = () => {
-  const { data, error, revalidate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, revalidate } = useSWR('/api/users', fetcher);
 
   // const [email, setEmail] = useState('');
   // const [nickname, setNickname] = useState('');
@@ -58,7 +58,7 @@ const SignUp = () => {
           //3095에서 3095로 보내는 것처럼 인식이 되서..cors가 발생되지 않는다.
           // .post('/api/users', {
           //서버에서 cors를 지정해서 다시 이렇게 설정해도 된다. 서버에서 cors 설정 시에는 http://localhost:3095를 붙여야 한다.
-          .post('http://localhost:3095/api/users', {
+          .post('/api/users', {
             email,
             nickname,
             password,
