@@ -135,7 +135,9 @@ const WorkSpace: VFC = () => {
     setShowCreateChannelModal(true);
   }, []);
 
-  const onClickInviteWorkspace = useCallback(() => {}, []);
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal(true);
+  }, []);
 
   if (!userData) {
     return <Redirect to="/login" />;
