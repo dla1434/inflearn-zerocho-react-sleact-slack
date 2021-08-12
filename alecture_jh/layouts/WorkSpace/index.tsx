@@ -62,6 +62,8 @@ const WorkSpace: VFC = () => {
   console.log('channelData', channelData);
 
   const { data: memberData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
+
+  //workspace별로 소켓을 생성하고..socket과 disconnect를 반환받아서 처리한다.
   const [socket, disconnect] = useSocket(workspace);
 
   useEffect(() => {
