@@ -33,6 +33,7 @@ export const MentionsTextarea = styled(MentionsInput)`
     line-height: 22px;
     border: none;
   }
+
   & ul {
     border: 1px solid lightgray;
     max-height: 200px;

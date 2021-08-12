@@ -1,8 +1,10 @@
 import fetcher from '@utils/fetcher';
-import React, { VFC, useCallback, useState } from 'react';
+import React, { VFC, useCallback, useState, useEffect } from 'react';
 import useSWR from 'swr';
 import axios from 'axios';
 import { Link, Redirect, Route, Switch } from 'react-router-dom';
+import useInput from '@hooks/useInput';
+import useSocket from '@hooks/useSocket';
 import {
   Header,
   RightMenu,
@@ -25,7 +27,6 @@ import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import { IChannel, IUser } from '@typings/db';
 import { Button, Input, Label } from '@pages/SignUp/styles';
-import useInput from '@hooks/useInput';
 import { toast } from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
 import { useParams } from 'react-router';
@@ -61,6 +62,20 @@ const WorkSpace: VFC = () => {
   console.log('channelData', channelData);
 
   const { data: memberData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
+  const [socket, disconnect] = useSocket(workspace);
+
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      console.log(socket);
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+    }
+  }, [socket, channelData, userData]);
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace, disconnect]);
 
   const onLogOut = useCallback(() => {
     axios
