@@ -9,6 +9,7 @@ import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 import axios from 'axios';
 import { IDM } from '@typings/db';
+import makeSection from '@utils/makeSection';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
@@ -47,13 +48,17 @@ const DirectMessage = () => {
 
   console.log('userData', userData.email, userData.nickname);
 
+  // const chatSections = makeSection(chatData ? [].concat(...chatData).reverse() : []);
+  //더 축약도 가능하다.
+  const chatSections = makeSection(chatData ? [...chatData].reverse() : []);
+
   return (
     <Container>
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname ? userData.nickname : 'noNickname'}</span>
       </Header>
-      <ChatList chatData={chatData} />
+      <ChatList chatSections={chatSections} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
     </Container>
   );
