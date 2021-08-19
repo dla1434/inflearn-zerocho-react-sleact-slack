@@ -28,8 +28,8 @@ const LogIn = () => {
           },
         )
         .then((response) => {
-          // revalidate();
-          mutate(response.data, false);
+          revalidate();
+          // mutate(response.data, false);
         })
         .catch((error) => {
           setLogInError(error.response?.data?.statusCode === 401);
