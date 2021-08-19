@@ -12,7 +12,7 @@ import { IDM } from '@typings/db';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
-  const { data: userData } = useSWR(`/api/workspace/${workspace}/users/${id}`, fetcher);
+  const { data: userData } = useSWR(`/api/workspaces/${workspace}/users/${id}`, fetcher);
   const { data: myData } = useSWR('/api/users', fetcher);
   const [chat, onChangeChat, setChat] = useInput('');
 
@@ -45,11 +45,13 @@ const DirectMessage = () => {
     return null;
   }
 
+  console.log('userData', userData.email, userData.nickname);
+
   return (
     <Container>
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
-        <span>{userData.nickname}</span>
+        <span>{userData.nickname ? userData.nickname : 'noNickname'}</span>
       </Header>
       <ChatList chatData={chatData} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />

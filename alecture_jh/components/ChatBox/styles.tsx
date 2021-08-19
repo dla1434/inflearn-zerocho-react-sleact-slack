@@ -21,6 +21,7 @@ export const MentionsTextarea = styled(MentionsInput)`
   font-size: 15px;
   padding: 8px 9px;
   width: 100%;
+  //nested selector(중첩 셀렉터)
   & strong {
     background: skyblue;
   }
