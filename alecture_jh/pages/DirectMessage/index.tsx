@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Container, Header } from '@pages/DirectMessage/styles';
 import gravatar from 'gravatar';
 import useSWR, { useSWRInfinite } from 'swr';
@@ -30,7 +30,7 @@ const DirectMessage = () => {
   //[ {id: 1}, {id: 2}, {id: 3}, {id: 4} ]
   //useSWRInfinite에서 2차 배열 형태로 감싼다.
   //처음 3,4만 있었다가...[[{id: 3}, {id: 4}]]
-  //스크롤을 올리면 setSize만큼 추가...[[{id: 1}, {id: 2}], [{id: 3}, {id: 4}]]
+  //스크롤을 올리면 setSize만큼 추가...[[{id: 1}, {id: 2}], [{   id: 3}, {id: 4}]]
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
 
@@ -40,20 +40,43 @@ const DirectMessage = () => {
     (e) => {
       e.preventDefault();
       console.log(chat);
-      if (chat?.trim()) {
+      if (chat?.trim() && chatData) {
+        const savedChat = chat;
+        mutateChat((prevChatData) => {
+          prevChatData?.[0].unshift({
+            id: (chatData[0][0]?.id || 0) + 1,
+            content: savedChat,
+            SenderId: myData.id,
+            Sender: myData,
+            ReceiverId: userData.id,
+            Receiver: userData,
+            createdAt: new Date(),
+          });
+          return prevChatData;
+        }, false).then(() => {
+          setChat('');
+          scrollbarRef.current?.scrollToBottom();
+        });
+
         axios
           .post(`/api/workspaces/${workspace}/dms/${id}/chats`, {
             content: chat,
           })
           .then(() => {
             revalidate();
-            setChat('');
           })
           .catch(console.error);
       }
     },
-    [chat],
+    [chat, chatData, myData, userData, workspace, id],
   );
+
+  //로딩 시 스크롤바 제일 아래로
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      scrollbarRef.current?.scrollToBottom();
+    }
+  }, [chatData]);
 
   if (!userData || !myData) {
     return null;
@@ -73,13 +96,7 @@ const DirectMessage = () => {
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname ? userData.nickname : 'noNickname'}</span>
       </Header>
-      <ChatList
-        chatSections={chatSections}
-        ref={scrollbarRef}
-        setSize={setSize}
-        isEmpty={isEmpty}
-        isReachingEnd={isReachingEnd}
-      />
+      <ChatList chatSections={chatSections} ref={scrollbarRef} setSize={setSize} isReachingEnd={isReachingEnd} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
     </Container>
   );
