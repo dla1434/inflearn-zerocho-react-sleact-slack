@@ -5,13 +5,14 @@ import gravatar from 'gravatar';
 import dayjs from 'dayjs';
 import regexifyString from 'regexify-string';
 import { Link, useParams } from 'react-router-dom';
+import { IChat } from '../../../alecture/typings/db';
 
 interface Props {
-  data: IDM;
+  data: IDM | IChat;
 }
 const Chat: VFC<Props> = ({ data }) => {
   const { workspace } = useParams<{ workspace: string; channel: string }>();
-  const user = data.Sender;
+  const user = 'Sender' in data ? data.Sender : data.User;
 
   //@[제로초](7)
   // \d는 숫자

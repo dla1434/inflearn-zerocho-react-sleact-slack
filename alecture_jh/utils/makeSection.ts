@@ -9,13 +9,11 @@ sections = {
   '2021-02-24': [3]
 };
  */
-
-import React from 'react';
 import dayjs from 'dayjs';
-import { IDM } from '@typings/db';
+import { IDM, IChat } from '@typings/db';
 
-export default function makeSection(chatList: IDM[]) {
-  const sections: { [key: string]: IDM[] } = {};
+export default function makeSection(chatList: (IDM | IChat)[]) {
+  const sections: { [key: string]: (IDM | IChat)[] } = {};
 
   chatList.forEach((chat) => {
     const monthDate = dayjs(chat.createdAt).format('YYYY-MM-DD');
