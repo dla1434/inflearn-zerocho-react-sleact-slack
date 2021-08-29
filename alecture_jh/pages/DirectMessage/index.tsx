@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Container, Header } from '@pages/DirectMessage/styles';
 import gravatar from 'gravatar';
 import useSWR, { useSWRInfinite } from 'swr';
@@ -12,6 +12,7 @@ import { IDM } from '@typings/db';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars';
 import useSocket from '@hooks/useSocket';
+import { DragOver } from '@pages/Channel/styles';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
@@ -37,6 +38,7 @@ const DirectMessage = () => {
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
 
   const scrollbarRef = useRef<Scrollbars>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const onSubmitForm = useCallback(
     (e) => {
@@ -56,6 +58,7 @@ const DirectMessage = () => {
           });
           return prevChatData;
         }, false).then(() => {
+          localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
           setChat('');
           scrollbarRef.current?.scrollToBottom();
         });
@@ -110,6 +113,47 @@ const DirectMessage = () => {
     }
   }, [chatData]);
 
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
+  }, [workspace, id]);
+
+  const onDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log(e);
+      const formData = new FormData();
+      if (e.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
+          if (e.dataTransfer.items[i].kind === 'file') {
+            const file = e.dataTransfer.items[i].getAsFile();
+            console.log('... file[' + i + '].name = ' + file.name);
+            formData.append('image', file);
+          }
+        }
+      } else {
+        // Use DataTransfer interface to access the file(s)
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          console.log('... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
+          formData.append('image', e.dataTransfer.files[i]);
+        }
+      }
+      axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
+        setDragOver(false);
+        localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
+        revalidate();
+      });
+    },
+    [workspace, id],
+  );
+
+  const onDragOver = useCallback((e) => {
+    e.preventDefault();
+    console.log(e);
+    setDragOver(true);
+  }, []);
+
   if (!userData || !myData) {
     return null;
   }
@@ -123,13 +167,14 @@ const DirectMessage = () => {
   const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   return (
-    <Container>
+    <Container onDrop={onDrop} onDragOver={onDragOver}>
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname ? userData.nickname : 'noNickname'}</span>
       </Header>
       <ChatList chatSections={chatSections} ref={scrollbarRef} setSize={setSize} isReachingEnd={isReachingEnd} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
+      {dragOver && <DragOver>업로드!</DragOver>}
     </Container>
   );
 };

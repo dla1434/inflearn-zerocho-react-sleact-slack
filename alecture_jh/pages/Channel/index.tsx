@@ -64,6 +64,7 @@ const Channel = () => {
           });
           return prevChatData;
         }, false).then(() => {
+          localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
           setChat('');
           scrollbarRef.current?.scrollToBottom();
         });
@@ -111,6 +112,10 @@ const Channel = () => {
       socket?.off('message', onMessage);
     };
   }, [socket, onMessage]);
+
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
+  }, [workspace, channel]);
 
   // 로딩 시 스크롤바 제일 아래로
   useEffect(() => {
